@@ -106,23 +106,23 @@ FlvScript::~FlvScript()
 {
 }
 
-int FlvScript::ParseData(const char* data, size_t length)
+int FlvScript::ParseData(const fix_buffer &buffer)
 {
-    std::string sdata(data, length);
+    std::string sdata(buffer.data(), buffer.size());
     size_t read_pos = 0, r = 0;
 
-    r = ParseDataValue(sdata, read_pos, length, &name_);
+    r = ParseDataValue(sdata, read_pos, buffer.size(), &name_);
     if (r == 0) {
         return -1;
     }
     read_pos += r;
 
-    r = ParseDataValue(sdata, read_pos, length - read_pos, &value_);
+    r = ParseDataValue(sdata, read_pos, buffer.size() - read_pos, &value_);
     if (r == 0) {
         return -1;
     }
     read_pos += r;
-    return length;
+    return buffer.size();
 }
 
 size_t FlvScript::ParseDataValue(const std::string& data, size_t pos,

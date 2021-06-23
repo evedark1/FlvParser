@@ -38,8 +38,9 @@ public:
 
     virtual ~FlvVideo();
 
-    virtual int ParseData(const char* data, size_t length);
+    virtual int ParseData(const fix_buffer &buffer);
     virtual std::string Info() const;
+    virtual fix_buffer Payload() const { return payload_; }
 
     uint8_t FrameType() const { return frame_type_; }
     uint8_t CodecID() const { return codec_id_; }
@@ -51,6 +52,8 @@ public:
     std::string AVCPacketTypeString() const;
 
 private:
+    fix_buffer payload_;
+
     uint8_t frame_type_;
     uint8_t codec_id_;
     uint8_t avc_packet_type_;

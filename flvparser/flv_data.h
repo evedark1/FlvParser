@@ -1,26 +1,22 @@
 // Copyright (c) 2018 winking324
 //
 
+#pragma once // NOLINT(build/header_guard)
 
-#pragma once  // NOLINT(build/header_guard)
-
-
-#include <string>
-#include <inttypes.h>
 #include "fix_buffer.h"
+#include <inttypes.h>
+#include <string>
 
 namespace flv_parser {
 
-
 class FlvData {
- public:
-  FlvData() {}
-  virtual ~FlvData() {}
+public:
+    FlvData() { }
+    virtual ~FlvData() { }
 
-  virtual int ParseData(const char *data, size_t length) = 0;
-  virtual std::string Info() const {return "";}
+    virtual int ParseData(const fix_buffer& buffer) = 0;
+    virtual std::string Info() const { return ""; }
+    virtual fix_buffer Payload() const { return fix_buffer(); }
 };
 
-
-}  // namespace flv_parser
-
+} // namespace flv_parser

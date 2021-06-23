@@ -15,8 +15,9 @@ FlvAudio::~FlvAudio()
 {
 }
 
-int FlvAudio::ParseData(const char* data, size_t length)
+int FlvAudio::ParseData(const fix_buffer &buffer)
 {
+    const char *data = buffer.data();
     size_t read_pos = 0;
     uint8_t sound_byte = ReadByte(&data[read_pos++]);
 
@@ -28,8 +29,8 @@ int FlvAudio::ParseData(const char* data, size_t length)
     if (format_ == AUDIO_FORMAT_AAC) {
         aac_packet_type_ = ReadByte(&data[read_pos++]);
     }
-
-    return length;
+    payload_ = buffer.sub(read_pos);
+    return buffer.size();
 }
 
 std::string FlvAudio::Info() const

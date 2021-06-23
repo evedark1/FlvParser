@@ -15,8 +15,9 @@ FlvVideo::~FlvVideo()
 {
 }
 
-int FlvVideo::ParseData(const char* data, size_t length)
+int FlvVideo::ParseData(const fix_buffer &buffer)
 {
+    const char *data = buffer.data();
     size_t read_pos = 0;
     uint8_t video_byte = ReadByte(&data[read_pos++]);
 
@@ -29,7 +30,8 @@ int FlvVideo::ParseData(const char* data, size_t length)
         read_pos += 3;
     }
 
-    return length;
+    payload_ = buffer.sub(read_pos);
+    return buffer.size();
 }
 
 std::string FlvVideo::Info() const

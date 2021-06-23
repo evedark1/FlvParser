@@ -52,17 +52,22 @@ int FlvTag::ParseData(const char* data, size_t len)
     if (size_ + read_pos > len) {
         return 0;
     }
+    body_ = fix_buffer(data, size_ + kTagHeaderSize);
+    payload_ = body_.sub(read_pos);
 
     int read_data_size = 0;
     switch (type_) {
     case AUDIO_TAG:
-        read_data_size = ParseAudio(data + read_pos);
+        data_.reset(new FlvAudio());
+        read_data_size = data_->ParseData(payload_);
         break;
     case VIDEO_TAG:
-        read_data_size = ParseVideo(data + read_pos);
+        data_.reset(new FlvVideo());
+        read_data_size = data_->ParseData(payload_);
         break;
     case SCRIPT_TAG:
-        read_data_size = ParseScript(data + read_pos);
+        data_.reset(new FlvScript());
+        read_data_size = data_->ParseData(payload_);
         break;
     default:
         return -1;
@@ -73,7 +78,6 @@ int FlvTag::ParseData(const char* data, size_t len)
     else if (read_data_size == 0)
         return 0;
     else {
-        body_ = std::string(data, read_data_size + kTagHeaderSize);
         return read_data_size + kTagHeaderSize;
     }
 }
@@ -106,24 +110,6 @@ std::string FlvTag::Info()
 uint32_t FlvTag::Timestamp() const
 {
     return static_cast<uint32_t>(timestamp_extended_) << 24 | timestamp_;
-}
-
-int FlvTag::ParseAudio(const char* data)
-{
-    data_.reset(new FlvAudio());
-    return data_->ParseData(data, size_);
-}
-
-int FlvTag::ParseVideo(const char* data)
-{
-    data_.reset(new FlvVideo());
-    return data_->ParseData(data, size_);
-}
-
-int FlvTag::ParseScript(const char* data)
-{
-    data_.reset(new FlvScript());
-    return data_->ParseData(data, size_);
 }
 
 } // namespace flv_parser

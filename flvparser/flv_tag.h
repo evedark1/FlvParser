@@ -29,19 +29,16 @@ public:
     std::string TypeString() const;
     std::string Info();
 
-    const char* Body() const { return body_.c_str(); }
-    const size_t BodySize() const { return body_.size(); }
+    fix_buffer Body() const { return body_; }
+    fix_buffer Payload() const { return payload_; }
     FlvData* Data() { return data_.get(); }
 
     uint32_t Timestamp() const;
 
 private:
-    int ParseAudio(const char* data);
-    int ParseVideo(const char* data);
-    int ParseScript(const char* data);
+    fix_buffer body_;
+    fix_buffer payload_;
 
-private:
-    std::string body_;
     uint8_t reserved_;
     uint8_t filter_;
     uint8_t type_;

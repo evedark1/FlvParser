@@ -53,8 +53,9 @@ public:
 
     ~FlvAudio();
 
-    virtual int ParseData(const char* data, size_t length);
+    virtual int ParseData(const fix_buffer &buffer);
     virtual std::string Info() const;
+    virtual fix_buffer Payload() const { return payload_; }
 
     uint8_t SoundFormat() const { return format_; }
     uint8_t SoundRate() const { return rate_; }
@@ -69,6 +70,8 @@ public:
     std::string AACPacketTypeString() const;
 
 private:
+    fix_buffer payload_;
+
     uint8_t format_;
     uint8_t rate_;
     uint8_t size_;

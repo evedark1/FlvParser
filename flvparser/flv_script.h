@@ -136,7 +136,7 @@ public:
 
     ~FlvScript();
 
-    virtual int ParseData(const char* data, size_t length);
+    virtual int ParseData(const fix_buffer &buffer);
 
     const FlvScriptDataValue& Name() { return name_; }
     const FlvScriptDataValue& Value() { return value_; }
