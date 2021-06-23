@@ -1,69 +1,60 @@
 // Copyright (c) 2018 winking324
 //
 
+#pragma once // NOLINT(build/header_guard)
 
-#pragma once  // NOLINT(build/header_guard)
-
-
-#include <inttypes.h>
 #include "flv_data.h"
-
+#include <inttypes.h>
 
 namespace flv_parser {
 
-
 enum VideoFrameType {
-  VIDEO_KEY_FRAME = 1,  // for AVC, a seekable frame
-  VIDEO_INTER_FRAME = 2,  // for AVC, a non-seekable frame
-  VIDEO_DISPOSABLE_INTER_FRAME = 3,  // H.263 only
-  VIDEO_GENERATED_KEY_FRAME = 4,  // reserved for server use only
-  VIDEO_INFO_AND_COMMAND_FRAME = 5,
+    VIDEO_KEY_FRAME = 1, // for AVC, a seekable frame
+    VIDEO_INTER_FRAME = 2, // for AVC, a non-seekable frame
+    VIDEO_DISPOSABLE_INTER_FRAME = 3, // H.263 only
+    VIDEO_GENERATED_KEY_FRAME = 4, // reserved for server use only
+    VIDEO_INFO_AND_COMMAND_FRAME = 5,
 };
-
 
 enum VideoCodecId {
-  VIDEO_CODEC_SORENSON_H263 = 2,
-  VIDEO_CODEC_SCREEN = 3,
-  VIDEO_CODEC_ON2_VP6 = 4,
-  VIDEO_CODEC_ON2_VP6_WITH_ALPHA_CHANNEL = 5,
-  VIDEO_CODEC_SCREEN_V2 = 6,
-  VIDEO_CODEC_AVC = 7,
-  VIDEO_CODEC_HEVC = 12,
+    VIDEO_CODEC_SORENSON_H263 = 2,
+    VIDEO_CODEC_SCREEN = 3,
+    VIDEO_CODEC_ON2_VP6 = 4,
+    VIDEO_CODEC_ON2_VP6_WITH_ALPHA_CHANNEL = 5,
+    VIDEO_CODEC_SCREEN_V2 = 6,
+    VIDEO_CODEC_AVC = 7,
+    VIDEO_CODEC_HEVC = 12,
 };
-
 
 enum AVCPacketType {
-  AVC_SEQUENCE_HEADER = 0,
-  AVC_NALU = 1,
-  AVC_END_OF_SEQUENCE = 2,
+    AVC_SEQUENCE_HEADER = 0,
+    AVC_NALU = 1,
+    AVC_END_OF_SEQUENCE = 2,
 };
-
 
 class FlvVideo : public FlvData {
- public:
-  FlvVideo();
+public:
+    FlvVideo();
 
-  virtual ~FlvVideo();
+    virtual ~FlvVideo();
 
-  virtual int ParseData(const char *data, size_t length);
-  virtual std::string Info() const;
+    virtual int ParseData(const char* data, size_t length);
+    virtual std::string Info() const;
 
-  uint8_t FrameType() const {return frame_type_;}
-  uint8_t CodecID() const {return codec_id_;}
-  uint8_t AVCPacketType() const {return avc_packet_type_;}
-  uint32_t CompositionTime() const {return composition_time_;}
+    uint8_t FrameType() const { return frame_type_; }
+    uint8_t CodecID() const { return codec_id_; }
+    uint8_t AVCPacketType() const { return avc_packet_type_; }
+    uint32_t CompositionTime() const { return composition_time_; }
 
-  std::string FrameTypeString() const;
-  std::string CodecIDString() const;
-  std::string AVCPacketTypeString() const;
+    std::string FrameTypeString() const;
+    std::string CodecIDString() const;
+    std::string AVCPacketTypeString() const;
 
- private:
-  uint8_t frame_type_;
-  uint8_t codec_id_;
-  uint8_t avc_packet_type_;
-  uint32_t composition_time_;
+private:
+    uint8_t frame_type_;
+    uint8_t codec_id_;
+    uint8_t avc_packet_type_;
+    uint32_t composition_time_;
 };
 
-
-}  // namespace flv_parser
-
+} // namespace flv_parser

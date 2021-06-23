@@ -7,6 +7,7 @@
 
 #include <string>
 #include <inttypes.h>
+#include "fix_buffer.h"
 
 namespace flv_parser {
 
