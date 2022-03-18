@@ -23,7 +23,8 @@ enum VideoCodecId {
     VIDEO_CODEC_ON2_VP6_WITH_ALPHA_CHANNEL = 5,
     VIDEO_CODEC_SCREEN_V2 = 6,
     VIDEO_CODEC_AVC = 7,
-    VIDEO_CODEC_HEVC = 12,
+    VIDEO_CODEC_HEVC = 12,  // nonstandard, define by yy
+    VIDEO_CODEC_AV1 = 13,   // nonstandard, define by tencent
 };
 
 enum AVCPacketType {

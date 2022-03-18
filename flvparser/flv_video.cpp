@@ -24,7 +24,7 @@ int FlvVideo::ParseData(const fix_buffer &buffer)
     frame_type_ = (video_byte & 0xF0) >> 4;
     codec_id_ = (video_byte & 0x0F);
 
-    if (codec_id_ == VIDEO_CODEC_AVC) {
+    if (codec_id_ == VIDEO_CODEC_AVC || codec_id_ == VIDEO_CODEC_HEVC || codec_id_ == VIDEO_CODEC_AV1) {
         avc_packet_type_ = ReadByte(&data[read_pos++]);
         composition_time_ = Read3Bytes(&data[read_pos]);
         read_pos += 3;
@@ -38,7 +38,7 @@ std::string FlvVideo::Info() const
 {
     std::stringstream ss;
     ss << "codec: " << CodecIDString() << ", " << FrameTypeString();
-    if (codec_id_ == VIDEO_CODEC_AVC) {
+    if (codec_id_ == VIDEO_CODEC_AVC || codec_id_ == VIDEO_CODEC_HEVC || codec_id_ == VIDEO_CODEC_AV1) {
         ss << ", " << AVCPacketTypeString();
     }
     return ss.str();
@@ -79,6 +79,8 @@ std::string FlvVideo::CodecIDString() const
         return "AVC";
     case VIDEO_CODEC_HEVC:
         return "HEVC";
+    case VIDEO_CODEC_AV1:
+        return "AV1";
     default:
         return "Unknown codec id: " + std::to_string(static_cast<uint32_t>(codec_id_));
     }
