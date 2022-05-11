@@ -8,30 +8,42 @@ namespace flv_parser {
 
 class FlvParser {
 public:
-    enum State {
-        ParseError = 0,
-        ParseHeader = 1,
-        ParseTag = 2,
-    };
 
     FlvParser();
 
-    // parse 每次只解析一段数据，解析结果通过 tag 获取
-    // 返回解析成功的字节数， =0 数据不足, < 0 解析失败
-    int parse(const char* data, size_t len);
+    enum ParseResult {
+        ParseTag = 0,           // len > 0 && tag != null
+        ParseHeader = 1,        // len > 0 && tag == null
+        ParsePreviousSize = 2,  // len > 0 && tag == null
+        ErrorMoreData = 3,      // len == 0 && tag == null
+        ErrorTagBody = 4,       // len > 0 && tag != null
+        ErrorStream = 5,        // len == 0 && tag == null
+    };
 
-    int state() const { return _state; }
+    /**
+     * @brief parse binary data to flv tag
+     * 
+     * @param data input data
+     * @param len input data length
+     * @param rlen output parsed length
+     * @param tag output flv tag when completed
+     * @return see ParseResult
+     */
+    int parse(const char* data, size_t len, size_t &rlen, std::shared_ptr<FlvTag> &tag);
+
     const FlvHeader& header() const { return _header; };
-    std::shared_ptr<FlvTag> tag() const { return _tag; };
 
 private:
-    int parseHeader(const char* data, size_t len);
-    int parseTag(const char* data, size_t len);
+    enum State {
+        StateError = 0,
+        StateHeader = 1,
+        StateTag = 2,
+        StatePreviousSize = 3,
+    };
 
-private:
     State _state;
     FlvHeader _header;
-    std::shared_ptr<FlvTag> _tag;
+    size_t _previousSize;
 };
 
 }

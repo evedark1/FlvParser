@@ -49,9 +49,11 @@ int FlvTag::ParseData(const char* data, size_t len)
     stream_id_ = Read3Bytes(&data[read_pos]);
     read_pos += 3;
 
-    if (size_ + read_pos > len) {
+    if (size_ == 0)
+        return -1;
+    if (size_ + read_pos > len)
         return 0;
-    }
+
     body_ = fix_buffer(data, size_ + kTagHeaderSize);
     payload_ = body_.sub(read_pos);
 
@@ -73,13 +75,10 @@ int FlvTag::ParseData(const char* data, size_t len)
         return -1;
     }
 
-    if (read_data_size < 0)
+    if (read_data_size <= 0)
         return -1;
-    else if (read_data_size == 0)
-        return 0;
-    else {
+    else
         return read_data_size + kTagHeaderSize;
-    }
 }
 
 std::string FlvTag::TypeString() const

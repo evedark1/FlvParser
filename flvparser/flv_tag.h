@@ -30,9 +30,9 @@ public:
     std::string Info();
 
     fix_buffer Body() const { return body_; }
+    size_t BodySize() const { return body_.size(); }
     fix_buffer Payload() const { return payload_; }
     FlvData* Data() { return data_.get(); }
-
     uint32_t Timestamp() const;
 
 private:

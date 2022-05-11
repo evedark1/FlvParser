@@ -3,50 +3,85 @@
 
 namespace flv_parser {
 
+inline int skipPreviousTagSize(int r, int len)
+{
+    r = r + 4; // skip previous tag size
+    return (r <= len) ? r : 0;
+}
+
 FlvParser::FlvParser()
 {
-    _state = ParseHeader;
+    _state = StateHeader;
+    _previousSize = 0;
 }
 
-int FlvParser::parse(const char* data, size_t len)
+int FlvParser::parse(const char* data, size_t len, size_t &rlen, std::shared_ptr<FlvTag> &tag)
 {
-    if (_state == ParseHeader)
-        return parseHeader(data, len);
-    else if (_state == ParseTag)
-        return parseTag(data, len);
-    else
-        return -1;
-}
+    rlen = 0;
+    tag = nullptr;
 
-int FlvParser::parseHeader(const char* data, size_t len)
-{
-    int r = _header.ParseData(data, len);
-    if (r == -1)
-        _state = ParseError;
-    else if (r > 0)
-        _state = ParseTag;
-    return r;
-}
+    switch (_state) {
+    case StateHeader: {
+        int r = _header.ParseData(data, len);
+        if (r > 0) {
+            _state = StatePreviousSize;
+            _previousSize = 0;
+            rlen = r;
+            return ParseHeader;
+        } else if (r < 0) {
+            _state = StateError;
+            return ErrorStream;
+        } else {
+            return ErrorMoreData;
+        }
+    } break;
 
-int FlvParser::parseTag(const char* data, size_t len)
-{
-    if (len < 4 + 11) // presize + tag header size
-        return 0;
+    case StateTag: {
+        std::shared_ptr<FlvTag> ntag(new FlvTag);
+        int r = ntag->ParseData(data, len);
+        if (r > 0) {
+            _state = StatePreviousSize;
+            _previousSize = ntag->BodySize();
+            rlen = r;
+            tag = ntag;
+            return ParseTag;
+        } else if (r < 0) {
+            if (ntag->BodySize() > 0) {
+                _state = StatePreviousSize;
+                _previousSize = ntag->BodySize();
+                rlen = ntag->BodySize();
+                tag = ntag;
+                return ErrorTagBody;
+            } 
 
-    // 跳过 previous tag size 不做解析
-    int read_pos = 4;
+            _state = StateError;
+            return ErrorStream;
+        } else {
+            return ErrorMoreData;
+        }
+    } break;
 
-    std::shared_ptr<FlvTag> tag(new FlvTag);
-    int r = tag->ParseData(data + read_pos, len - read_pos);
-    if (r == -1) {
-        _state = ParseError;
-        return r;
-    } else if (r == 0) {
-        return 0;
-    } else {
-        _tag = tag;
-        return r + read_pos;
+    case StatePreviousSize: {
+        if(len >= 4) {
+            /* don't check previous size
+            if(Read4Bytes(data) != _previousSize) {
+                _state = StateError;
+                return ErrorStream;
+            }
+            */
+            _state = StateTag;
+            rlen = 4; // skip previous tag size
+            return ParsePreviousSize;
+        } else {
+            return ErrorMoreData;
+        }
+    } break;
+
+    default:
+        break;
     }
+
+    return ErrorStream;
 }
 
 }

@@ -11,28 +11,32 @@ int parseFlv(const char* data, size_t len)
 {
     size_t read_pos = 0;
     while (true) {
-        int state = flvParser.state();
-        int r = flvParser.parse(data + read_pos, len - read_pos);
-        if (r < 0) {
-            return -1;
-        } else if (r == 0) {
-            return read_pos;
-        }
-        read_pos += r;
+        size_t sz;
+        shared_ptr<FlvTag> tag;
+        int result = flvParser.parse(data + read_pos, len - read_pos, sz, tag);
+        if (sz > 0)
+            read_pos += sz;
 
-        if (state == FlvParser::ParseHeader) {
+        if (result == FlvParser::ParseHeader) {
             FlvHeader header = flvParser.header();
             printf("FlvHeader %s\n", header.Info().c_str());
-        } else { // ParserTag
-            shared_ptr<FlvTag> tag = flvParser.tag();
+        } else if (result == FlvParser::ParseTag) {
             printf("FlvTag %s %d, %s\n", tag->TypeString().c_str(), tag->Timestamp(), tag->Data()->Info().c_str());
             if (tag->Type() == SCRIPT_TAG) {
-                FlvScript* script = dynamic_cast<FlvScript*>(tag->Data());
-                const FlvScriptDataValue& name = script->Name();
+                FlvScript *script = dynamic_cast<FlvScript *>(tag->Data());
+                const FlvScriptDataValue &name = script->Name();
                 printf("name %s: %s\n", name.TypeString().c_str(), name.Info().c_str());
-                const FlvScriptDataValue& value = script->Value();
+                const FlvScriptDataValue &value = script->Value();
                 printf("value %s: %s\n", value.TypeString().c_str(), value.Info().c_str());
             }
+        } else if (result == FlvParser::ParsePreviousSize) {
+            continue;
+        } else if (result == FlvParser::ErrorMoreData) {
+            return read_pos;
+        } else if(result == FlvParser::ErrorTagBody) {
+            printf("FlvTag error body %s %d\n", tag->TypeString().c_str(), tag->Timestamp());
+        } else { // result == FlvParser::ErrorStream
+            return -1;
         }
     }
 }
